@@ -47,17 +47,48 @@ const getCourseNumber = course => (
   course.id.slice(1, 4)
 )
 
+// change button color when clicked
+const buttonColor = selected => (
+  selected ? 'success' : null
+);
+
+// get the correct term when button clicked
+const TermSelector = ({ state }) => (
+  <Button.Group hasAddons>
+  { Object.values(terms)
+      .map(value =>
+        <Button key={value}
+          color={ buttonColor(value === state.term) }
+          onClick={ () => state.setTerm(value) }
+          >
+          { value }
+        </Button>
+      )
+  }
+  </Button.Group>
+);
+
 const Course = ({ course }) => (
   <Button>
     { getCourseTerm(course) } CS { getCourseNumber(course) }: { course.title }
   </Button>
 );
 
-const CourseList = ({ courses }) => (
-  <Button.Group>
-    {courses.map(course => <Course key={course.id} course={ course } />)}
-  </Button.Group>
-);
+// get all courses based on selected term
+const CourseList = ({ courses }) => {
+  const [term, setTerm] = React.useState('Fall');
+  const termCourses = courses.filter(course => term === getCourseTerm(course));
+
+  return (
+    <React.Fragment>
+      <TermSelector state={ { term, setTerm } } />
+      <div className="buttons">
+        { termCourses.map(course =>
+           <Course key={ course.id } course={ course }  />) }
+      </div>
+    </React.Fragment>
+  );
+};
 
 const App = () => {
   const [schedule, setSchedule] = useState({ title: '', courses: [] });
